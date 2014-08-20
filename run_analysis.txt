@@ -1,0 +1,136 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.1.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[R.app GUI 1.65 (6784) x86_64-apple-darwin13.1.0]
+
+[Workspace restored from /Users/rolandpadilla/.RData]
+[History restored from /Users/rolandpadilla/.Rapp.history]
+
+> library("plyr")
+> activity_labels <- read.table("UCI HAR Dataset/activity_labels.txt", sep = " ")
+Error in file(file, "rt") : cannot open the connection
+In addition: Warning message:
+In file(file, "rt") :
+  cannot open file 'UCI HAR Dataset/activity_labels.txt': No such file or directory
+> getwd()
+[1] "/Users/rolandpadilla"
+> dir()
+ [1] "Adobe Acrobat XI Pro"     "Applications"            
+ [3] "Applications (Parallels)" "CourseProj1"             
+ [5] "CourseProject1"           "datasciencecoursera"     
+ [7] "Desktop"                  "dlmgr_.pro"              
+ [9] "Documents"                "Downloads"               
+[11] "Dropbox"                  "ExData_Plotting1"        
+[13] "finna-be-nemesis"         "Google Drive"            
+[15] "hello"                    "hello-world"             
+[17] "Library"                  "Movies"                  
+[19] "Music"                    "Pictures"                
+[21] "plot1.png"                "plot2.png"               
+[23] "plot3.png"                "plot4.png"               
+[25] "plotfiles"                "Public"                  
+[27] "README.md"                "Readme.txt"              
+[29] "System"                   "test"                    
+[31] "topten"                   "VirtualBox VMs"          
+[33] "z1"                      
+> getwd()
+[1] "/Users/rolandpadilla/topten/UCI"
+> dir
+function (path = ".", pattern = NULL, all.files = FALSE, full.names = FALSE, 
+    recursive = FALSE, ignore.case = FALSE, include.dirs = FALSE, 
+    no.. = FALSE) 
+.Internal(list.files(path, pattern, all.files, full.names, recursive, 
+    ignore.case, include.dirs, no..))
+<bytecode: 0x7fb321415040>
+<environment: namespace:base>
+> dir()
+[1] "activity_labels.txt" "features_info.txt"   "features.txt"       
+[4] "README.txt"          "test"                "train"              
+> library("plyr")
+> activity_labels <- read.table("UCI/activity_labels.txt")
+Error in file(file, "rt") : cannot open the connection
+In addition: Warning message:
+In file(file, "rt") :
+  cannot open file 'UCI/activity_labels.txt': No such file or directory
+> activity_labels <- read.table("topten/UCI/activity_labels.txt")
+Error in file(file, "rt") : cannot open the connection
+In addition: Warning message:
+In file(file, "rt") :
+  cannot open file 'topten/UCI/activity_labels.txt': No such file or directory
+> activity_labels <- read.table("activity_labels.txt")
+> names(activity_labels) <- c("move_index","move_label")
+> width <- c(-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15)
+> data_test_X <- read.fwf("test/X_test.txt", width, skip=0)
+> names(data_test_Y) <- read.table("test?Y_test.txt", sep = "")
+Error in file(file, "rt") : cannot open the connection
+In addition: Warning message:
+In file(file, "rt") :
+  cannot open file 'test?Y_test.txt': No such file or directory
+> names(data_test_Y) <- read.table("test/Y_test.txt", sep = "")
+Error in names(data_test_Y) <- read.table("test/Y_test.txt", sep = "") : 
+  object 'data_test_Y' not found
+> names(data_test_Y) <- read.table("test/Y_test.txt", sep = " ")
+Error in names(data_test_Y) <- read.table("test/Y_test.txt", sep = " ") : 
+  object 'data_test_Y' not found
+> data_test_Y <- read.table("test/Y_test.txt", sep = " ")
+> names(data_test_Y) <- "move_index"
+> subject_test <- read.table("test/subject_test.txt", sep = " ")
+> names(subject_test) <- "User_name"
+> moves_test <- arrange(join(data_test_Y, activity_labels), move_index)
+Joining by: move_index
+> moves_test <- cbind(subject_test,moves_test, data_test_X)
+> data_train_X <- read.fwf("train/X_train.txt", width, skip=0)
+d
+> data_train_Y <-read.table("train/Y_train.txt", sep = " ")
+> names(data_train_Y) <- "move_index"
+> subject_train <- read.table("train/subject_train.txt", sep = " ")
+> names(subject_train) <- "User_name"
+> moves_train <- arrange(join(data_train_Y,activity_labels),move_index)
+Joining by: move_index
+> moves_train <- cbind(subject_train,moves_train,data_train_X)
+> users_moves <- rbind(moves_train, moves_test)
+> h <- c("users", "moves_ref", "move", "mean", "std", "mad", "max", "min", "sma", "energy", "iqr", "entropy", "arCoeff", "correlation", "maxInds", "meanFreq", "skewness", "kurtosis", "bandsEnergy", "angle")
+> names(users_moves) <- h
+> extract <- data.frame(users_moves$users,users_moves$move,users_moves$mean,users_moves$std)
+> new_ds <- NULL
+> temp_mean <- ddply(users_moves, .(users,move), summarize, mean=(mean(mean)))
+> temp_std <- ddply(users_moves, .(users,move), summarize, mean=(mean(std)))[,3]
+> temp_mad <- ddply(users_moves, .(users,move), summarize, mean=(mean(mad)))[,3]
+> temp_max <- ddply(users_moves, .(users,move), summarize, mean=(mean(max)))[,3]
+> temp_min <- ddply(users_moves, .(users,move), summarize, mean=(mean(min)))[,3]
+> temp_sma <- ddply(users_moves, .(users,move), summarize, mean=(mean(sma)))[,3]
+> temp_energy <- ddply(users_moves, .(users,move), summarize, mean=(mean(energy)))[,3]
+> temp_iqr <- ddply(users_moves, .(users,move), summarize, mean=(mean(iqr)))[,3]
+> temp_entropy <- ddply(users_moves, .(users,move), summarize, mean=(mean(entropy)))[,3]
+> temp_arCoeff <- ddply(users_moves, .(users,move), summarize, mean=(mean(arCoeff)))[,3]
+> temp_correlation <- ddply(users_moves, .(users,move), summarize, mean=(mean(correlation)))[,3]
+> temp_maxInds <- ddply(users_moves, .(users,move), summarize, mean=(mean(maxInds)))[,3]
+> temp_meanFreq <- ddply(users_moves, .(users,move), summarize, mean=(mean(meanFreq)))[,3]
+> temp_skewness <- ddply(users_moves, .(users,move), summarize, mean=(mean(skewness)))[,3]
+> temp_kurtosis <- ddply(users_moves, .(users,move), summarize, mean=(mean(kurtosis)))[,3]
+> temp_bandsEnergy <- ddply(users_moves, .(users,move), summarize, mean=(mean(bandsEnergy)))[,3]
+> temp_angle <- ddply(users_moves, .(users,move), summarize, mean=(mean(angle)))[,3]
+> 
+> new_ds <- cbind(temp_mean, temp_std,temp_mad,temp_max,temp_min,temp_sma,temp_energy,temp_iqr,temp_entropy,temp_arCoeff,temp_correlation,temp_maxInds,temp_meanFreq,temp_skewness,temp_kurtosis,temp_bandsEnergy,temp_angle)
+> n <- c(names(users_moves)[1],names(users_moves)[3:length(names(users_moves))])
+> names(new_ds) <- n
+> write.table(new_ds, file = "tidyDataSet.txt", sep="\t")
+2014-08-21 01:00:30.765 R[9060:707] *** WARNING: Method convertPointFromBase: in class NSView is deprecated on 10.7 and later. It should not be used in new applications. 
+> ##dfdf
+> #
+> 
