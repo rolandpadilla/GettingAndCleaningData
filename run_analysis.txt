@@ -1,33 +1,9 @@
-
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin13.1.0 (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
-[R.app GUI 1.65 (6784) x86_64-apple-darwin13.1.0]
-
-[Workspace restored from /Users/rolandpadilla/.RData]
-[History restored from /Users/rolandpadilla/.Rapp.history]
+##We are now trying to load the library.
 
 > library("plyr")
-> activity_labels <- read.table("UCI HAR Dataset/activity_labels.txt", sep = " ")
-Error in file(file, "rt") : cannot open the connection
-In addition: Warning message:
-In file(file, "rt") :
-  cannot open file 'UCI HAR Dataset/activity_labels.txt': No such file or directory
+
+##Checking the working directory.
+
 > getwd()
 [1] "/Users/rolandpadilla"
 > dir()
@@ -48,65 +24,64 @@ In file(file, "rt") :
 [29] "System"                   "test"                    
 [31] "topten"                   "VirtualBox VMs"          
 [33] "z1"                      
-> getwd()
-[1] "/Users/rolandpadilla/topten/UCI"
-> dir
-function (path = ".", pattern = NULL, all.files = FALSE, full.names = FALSE, 
-    recursive = FALSE, ignore.case = FALSE, include.dirs = FALSE, 
-    no.. = FALSE) 
-.Internal(list.files(path, pattern, all.files, full.names, recursive, 
-    ignore.case, include.dirs, no..))
-<bytecode: 0x7fb321415040>
-<environment: namespace:base>
+
+##Confirming the contents of the directory.
+
 > dir()
 [1] "activity_labels.txt" "features_info.txt"   "features.txt"       
 [4] "README.txt"          "test"                "train"              
-> library("plyr")
-> activity_labels <- read.table("UCI/activity_labels.txt")
-Error in file(file, "rt") : cannot open the connection
-In addition: Warning message:
-In file(file, "rt") :
-  cannot open file 'UCI/activity_labels.txt': No such file or directory
-> activity_labels <- read.table("topten/UCI/activity_labels.txt")
-Error in file(file, "rt") : cannot open the connection
-In addition: Warning message:
-In file(file, "rt") :
-  cannot open file 'topten/UCI/activity_labels.txt': No such file or directory
+
+##We are now loading the data from the "test" and "train" files.
+
+##At this stage, we are alos loading the lables for each activity.
+
 > activity_labels <- read.table("activity_labels.txt")
 > names(activity_labels) <- c("move_index","move_label")
+
+##Specifying the width is as follows:
+
 > width <- c(-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15,-1,15)
+
+
+## Now, we are testing the data set. 
 > data_test_X <- read.fwf("test/X_test.txt", width, skip=0)
-> names(data_test_Y) <- read.table("test?Y_test.txt", sep = "")
-Error in file(file, "rt") : cannot open the connection
-In addition: Warning message:
-In file(file, "rt") :
-  cannot open file 'test?Y_test.txt': No such file or directory
-> names(data_test_Y) <- read.table("test/Y_test.txt", sep = "")
-Error in names(data_test_Y) <- read.table("test/Y_test.txt", sep = "") : 
-  object 'data_test_Y' not found
-> names(data_test_Y) <- read.table("test/Y_test.txt", sep = " ")
-Error in names(data_test_Y) <- read.table("test/Y_test.txt", sep = " ") : 
-  object 'data_test_Y' not found
 > data_test_Y <- read.table("test/Y_test.txt", sep = " ")
 > names(data_test_Y) <- "move_index"
 > subject_test <- read.table("test/subject_test.txt", sep = " ")
 > names(subject_test) <- "User_name"
+
+##We are now prepared to join the test data sets.
+
 > moves_test <- arrange(join(data_test_Y, activity_labels), move_index)
-Joining by: move_index
 > moves_test <- cbind(subject_test,moves_test, data_test_X)
+
+##For the "train" data set, we are to use the same logic as that of the "test" data set.
+
 > data_train_X <- read.fwf("train/X_train.txt", width, skip=0)
 d
 > data_train_Y <-read.table("train/Y_train.txt", sep = " ")
 > names(data_train_Y) <- "move_index"
 > subject_train <- read.table("train/subject_train.txt", sep = " ")
 > names(subject_train) <- "User_name"
+
+##Let us now merge the train data sets.
+
 > moves_train <- arrange(join(data_train_Y,activity_labels),move_index)
-Joining by: move_index
 > moves_train <- cbind(subject_train,moves_train,data_train_X)
 > users_moves <- rbind(moves_train, moves_test)
+
+##We have started to suitably label our data sets with the requested descriptive names as follows:
+
 > h <- c("users", "moves_ref", "move", "mean", "std", "mad", "max", "min", "sma", "energy", "iqr", "entropy", "arCoeff", "correlation", "maxInds", "meanFreq", "skewness", "kurtosis", "bandsEnergy", "angle")
 > names(users_moves) <- h
+
+
+##We'll be extracting the mean and standard deviation from the merged dataset.
+
 > extract <- data.frame(users_moves$users,users_moves$move,users_moves$mean,users_moves$std)
+
+##We create an independent tidy data set with the average of each variable for the respective activity and subject.
+
 > new_ds <- NULL
 > temp_mean <- ddply(users_moves, .(users,move), summarize, mean=(mean(mean)))
 > temp_std <- ddply(users_moves, .(users,move), summarize, mean=(mean(std)))[,3]
@@ -130,7 +105,3 @@ Joining by: move_index
 > n <- c(names(users_moves)[1],names(users_moves)[3:length(names(users_moves))])
 > names(new_ds) <- n
 > write.table(new_ds, file = "tidyDataSet.txt", sep="\t")
-2014-08-21 01:00:30.765 R[9060:707] *** WARNING: Method convertPointFromBase: in class NSView is deprecated on 10.7 and later. It should not be used in new applications. 
-> ##dfdf
-> #
-> 
